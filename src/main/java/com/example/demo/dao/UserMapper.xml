@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：绑定接口, MyBatis将其实现 -->
+<mapper namespace="com.example.demo.dao.UserMapper">
+    <select id="getUserList" resultType="com.example.demo.pojo.User">
+        select * from test.user
+    </select>
+</mapper>
