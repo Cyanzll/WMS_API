@@ -35,14 +35,25 @@ public class ApiController {
     @GetMapping(path = "/reg")
     public @ResponseBody String RegisterStatus (
         @RequestParam String username,
-        @RequestParam String password
-    ) {
-        String status = apiService.handleRegister(username, password);
+        @RequestParam String password,
+        @RequestParam String email,
+        @RequestParam String phone
+        ) {
+        String status = apiService.handleRegister(username, password, email, phone);
         switch (status) {
             case "200": return "success";
             case "201": return "duplicate username";
             default: return "failed";
         }
+    }
+
+    // 发送邮件验证码
+    @GetMapping(path = "/email")
+    public @ResponseBody String sendEmail (
+            @RequestParam String to // 目的邮箱
+    ) {
+        String checkCode = apiService.sendEmailCode(to);
+        return checkCode;
     }
 
 }

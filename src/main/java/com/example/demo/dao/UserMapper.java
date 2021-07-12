@@ -17,8 +17,8 @@ public interface UserMapper {
 
     // insertUser
     // 此处密码已使用MD5加密存储
-    @Insert("insert into test.user(username,password) values(#{username}, MD5(#{password}))")
+    @Insert("insert into test.user(username,password,email,phone) values(#{username}, #{password}, #{email}, #{phone})")
     @Options(useGeneratedKeys = true)
-    int insertUser(String username, String password);
+    int insertUser(String username, String password, String email, String phone);
 
 }
