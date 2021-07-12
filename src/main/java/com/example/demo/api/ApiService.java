@@ -35,6 +35,10 @@ public class ApiService {
     public String handleRegister(String username, String password) {
         SqlSession sqlSession = MyBatisUtils.getSqlSession();
         UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+        // 过滤
+        if(username.equals("") || username == null) {
+            return "202";
+        }
         // 验重
         if(mapper.getUserByUsername(username) != null) {
             return "201";
@@ -44,5 +48,7 @@ public class ApiService {
         sqlSession.close();
         return "200";
     }
+
+
 
 }
