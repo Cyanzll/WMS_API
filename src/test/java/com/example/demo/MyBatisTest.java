@@ -13,17 +13,17 @@ import java.util.List;
 // 测试通过
 public class MyBatisTest {
 
-    @Test
-    @Rollback(value = false)
-    public void testSelectById() throws IOException {
-        SqlSession sqlSession = MyBatisUtils.getSqlSession();
-        UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+//    @Test
+//    @Rollback(value = false)
+//    public void testSelectById() throws IOException {
+//        SqlSession sqlSession = MyBatisUtils.getSqlSession();
+//        UserMapper mapper = sqlSession.getMapper(UserMapper.class);
 //        List<User> userList = mapper.getUserList();
-        User u = mapper.getUserByUsername("Time");
-        System.out.println(u == null);
+//        User u = mapper.getUserByUsername("Time");
+//        System.out.println(u == null);
 //        for (User user : userList) {
 //            System.out.println(user);
 //        }
-    }
+//    }
 
 }

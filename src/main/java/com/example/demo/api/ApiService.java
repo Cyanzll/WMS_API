@@ -7,7 +7,6 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
-import org.springframework.util.DigestUtils;
 import org.springframework.mail.javamail.JavaMailSender;
 import java.util.Random;
 
@@ -60,6 +59,7 @@ public class ApiService {
         return "200";
     }
 
+    // 发送邮件验证码
     public String sendEmailCode(String toEmail) {
         //生成随机验证码
         String checkCode = String.valueOf(new Random().nextInt(899999) + 100000);
@@ -67,10 +67,58 @@ public class ApiService {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(username);
         message.setTo(toEmail);
-        message.setSubject("验证码邮件");
-        message.setText("您正在修改您的密码，本次验证码为：" + checkCode + "\n 如非本人操作，请忽略！谢谢");
+        message.setSubject("学生服务系统 - 电子邮箱验证码");
+        message.setText("欢迎注册学生服务系统，您本次的验证码为：" + checkCode + "\n 如非本人操作，请忽略。");
         mailSender.send(message);
         return checkCode; // 返回验证码
+    }
+
+    // 发送邮件验证码
+    public String sendEmailCodeReset(String username) {
+        // 通过用户名取得邮箱地址
+        SqlSession sqlSession = MyBatisUtils.getSqlSession();
+        UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+        User u = mapper.getUserByUsername(username);
+        String toEmail = u.getEmail();
+        sqlSession.close();
+
+        //生成随机验证码
+        String checkCode = String.valueOf(new Random().nextInt(899999) + 100000);
+        String fromEmail = "1162830359@qq.com";
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(fromEmail);
+        message.setTo(toEmail);
+        message.setSubject("学生服务系统 - 电子邮箱验证码");
+        message.setText("以下验证码用于重置用户密码： " + checkCode + "\n 如非本人操作，请忽略。");
+        mailSender.send(message);
+        return checkCode; // 返回验证码
+    }
+
+    // 重置密码 - 邮箱验证
+    public String handleValidate(String username, String email) {
+        // Accessing Data
+        SqlSession sqlSession = MyBatisUtils.getSqlSession();
+        UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+        User u = mapper.getUserByUsername(username);
+        sqlSession.close();
+        // 不存在该用户
+        if(u == null) {
+            return "404";
+        }
+        // 密码比对
+        if(email.equals(u.getEmail())) {
+            return "200";
+        } else return "201";
+    }
+
+    // 重置密码
+    public String handlePwdReset(String username, String password) {
+        SqlSession sqlSession = MyBatisUtils.getSqlSession();
+        UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+        mapper.updateUserPwd(username, password);
+        sqlSession.commit(); // 提交事务
+        sqlSession.close();
+        return "200";
     }
 
 }

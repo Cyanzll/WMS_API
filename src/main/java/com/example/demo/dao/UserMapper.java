@@ -4,6 +4,7 @@ import com.example.demo.pojo.User;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -21,4 +22,9 @@ public interface UserMapper {
     @Options(useGeneratedKeys = true)
     int insertUser(String username, String password, String email, String phone);
 
+    @Select("select * from user where email=#{email}")
+    User getUserByEmail(String email);
+
+    @Update("UPDATE user SET password=#{password} WHERE username=#{username};")
+    int updateUserPwd(String username, String password);
 }

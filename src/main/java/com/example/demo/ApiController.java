@@ -1,5 +1,6 @@
-package com.example.demo.api;
+package com.example.demo;
 
+import com.example.demo.api.ApiService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,6 +48,19 @@ public class ApiController {
         }
     }
 
+    // 密码重置 - 邮箱验证
+    @GetMapping(path = "/validate")
+    public @ResponseBody String ValidateEmail (
+            @RequestParam String username,
+            @RequestParam String email
+    ) {
+        String status = apiService.handleValidate(username, email);
+        switch (status) {
+            case "200": return "success";
+            default: return "wrong email";
+        }
+    }
+
     // 发送邮件验证码
     @GetMapping(path = "/email")
     public @ResponseBody String sendEmail (
@@ -56,4 +70,25 @@ public class ApiController {
         return checkCode;
     }
 
+    // 发送邮件验证码
+    @GetMapping(path = "/email_reset")
+    public @ResponseBody String sendEmailReset (
+            @RequestParam String username
+    ) {
+        String checkCode = apiService.sendEmailCodeReset(username);
+        return checkCode;
+    }
+
+    // 重置密码
+    @GetMapping(path = "/reset")
+    public @ResponseBody String resetPwd (
+            @RequestParam String username,
+            @RequestParam String password
+    ) {
+        String status = apiService.handlePwdReset(username, password);
+        switch (status) {
+            case "200": return "success";
+            default: return "failed";
+        }
+    }
 }
