@@ -1,7 +1,11 @@
 package com.example.demo;
 
 import com.example.demo.api.ApiService;
+import com.example.demo.pojo.User;
+import com.example.demo.utils.Message;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin // 解决前端跨域问题
@@ -18,77 +22,95 @@ public class ApiController {
         this.apiService = apiService;
     }
 
-    // 登录
+    // 处理登录请求 REST
     @GetMapping(path = "/login")
-    public @ResponseBody String loginStatus (
-        @RequestParam String username,
-        @RequestParam String password
+    public ResponseEntity login(
+            @RequestParam String username,
+            @RequestParam String password
     ) {
         String status = apiService.handleLogin(username, password);
         switch (status) {
-            case "200": return "success";
-            case "201": return "password error";
-            default: return "unknown username";
+            case "success":
+                return ResponseEntity.status(HttpStatus.OK).body(new Message("200", status));
+            case "username not exist":
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Message("404", status));
+            case "password error":
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Message("401", status));
+            default:
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Message("500", "INTERNAL SERVER ERROR"));
         }
     }
 
-    // 注册
-    @GetMapping(path = "/reg")
-    public @ResponseBody String RegisterStatus (
-        @RequestParam String username,
-        @RequestParam String password,
-        @RequestParam String email,
-        @RequestParam String phone
-        ) {
+    // 处理注册请求 REST
+    @GetMapping(path = "/register")
+    public ResponseEntity register(
+            @RequestParam String username,
+            @RequestParam String password,
+            @RequestParam String email,
+            @RequestParam String phone
+    ) {
         String status = apiService.handleRegister(username, password, email, phone);
         switch (status) {
-            case "200": return "success";
-            case "201": return "duplicate username";
-            default: return "failed";
+            case "success":
+                return ResponseEntity.status(HttpStatus.CREATED).body(new Message("201", status));
+            case "invalid username":
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Message("400", status));
+            case "duplicate username":
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Message("400", status));
+            default:
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Message("500", "INTERNAL SERVER ERROR"));
         }
     }
 
-    // 密码重置 - 邮箱验证
-    @GetMapping(path = "/validate")
-    public @ResponseBody String ValidateEmail (
+    // 处理邮箱地址校验 REST
+    @GetMapping(path = "/validate_email")
+    public ResponseEntity validateEmail (
             @RequestParam String username,
             @RequestParam String email
     ) {
         String status = apiService.handleValidate(username, email);
         switch (status) {
-            case "200": return "success";
-            default: return "wrong email";
+            case "success":
+                return ResponseEntity.status(HttpStatus.CREATED).body(new Message("201", status));
+            case "username not exist":
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Message("404", status));
+            case "email error":
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Message("401", status));
+            default:
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Message("500", "INTERNAL SERVER ERROR"));
         }
     }
 
-    // 发送邮件验证码
-    @GetMapping(path = "/email")
-    public @ResponseBody String sendEmail (
+    // 处理注册发送邮件验证码请求 REST
+    @GetMapping(path = "/email_auth_code_reg")
+    public ResponseEntity emailAuthCodeReg (
             @RequestParam String to // 目的邮箱
     ) {
-        String checkCode = apiService.sendEmailCode(to);
-        return checkCode;
+        String checkCode = apiService.sendEmailAuthCodeByEmail(to);
+        return ResponseEntity.status(HttpStatus.OK).body(new Message("200", checkCode));
     }
 
-    // 发送邮件验证码
-    @GetMapping(path = "/email_reset")
-    public @ResponseBody String sendEmailReset (
+    // 处理密码重置发送邮件验证码请求 REST
+    @GetMapping(path = "/email_auth_code_reg_reset_password")
+    public ResponseEntity emailAuthCodePwdReset (
             @RequestParam String username
     ) {
-        String checkCode = apiService.sendEmailCodeReset(username);
-        return checkCode;
+        String checkCode = apiService.sendEmailAuthCodeByUsername(username);
+        return ResponseEntity.status(HttpStatus.OK).body(new Message("200", checkCode));
     }
 
-    // 重置密码
-    @GetMapping(path = "/reset")
-    public @ResponseBody String resetPwd (
+    // 处理用户密码重置 REST
+    @GetMapping(path = "/reset_password")
+    public ResponseEntity resetPassword (
             @RequestParam String username,
             @RequestParam String password
     ) {
         String status = apiService.handlePwdReset(username, password);
         switch (status) {
-            case "200": return "success";
-            default: return "failed";
+            case "success":
+                return ResponseEntity.status(HttpStatus.CREATED).body(new Message("201", status));
+            default:
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Message("500", "INTERNAL SERVER ERROR"));
         }
     }
 }

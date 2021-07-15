@@ -24,7 +24,6 @@ public class ApiService {
 
     // 登录服务
     public String handleLogin(String username, String password) {
-        // Accessing Data
         SqlSession sqlSession = MyBatisUtils.getSqlSession();
         UserMapper mapper = sqlSession.getMapper(UserMapper.class);
         User u = mapper.getUserByUsername(username);
@@ -32,35 +31,34 @@ public class ApiService {
         sqlSession.close();
         // 不存在该用户
         if(u == null) {
-            return "404";
+            return "username not exist";
         }
         // 密码比对
-        // password = DigestUtils.md5DigestAsHex(password.getBytes());
         if(password.equals(u.getPassword())) {
-            return "200";
-        } else return "201";
+            return "success";
+        } else return "password error";
     }
 
     // 注册服务
     public String handleRegister(String username, String password, String email, String phone) {
         SqlSession sqlSession = MyBatisUtils.getSqlSession();
         UserMapper mapper = sqlSession.getMapper(UserMapper.class);
-        // 过滤
+        // 过滤空用户名
         if(username.equals("") || username == null) {
-            return "202";
+            return "invalid username";
         }
         // 验重
         if(mapper.getUserByUsername(username) != null) {
-            return "201";
+            return "duplicate username";
         }
         mapper.insertUser(username, password, email, phone);
         sqlSession.commit(); // 提交事务
         sqlSession.close();
-        return "200";
+        return "success";
     }
 
-    // 发送邮件验证码
-    public String sendEmailCode(String toEmail) {
+    // 发送邮件验证码 - 根据邮箱地址
+    public String sendEmailAuthCodeByEmail(String toEmail) {
         //生成随机验证码
         String checkCode = String.valueOf(new Random().nextInt(899999) + 100000);
         String username = "1162830359@qq.com";
@@ -68,13 +66,13 @@ public class ApiService {
         message.setFrom(username);
         message.setTo(toEmail);
         message.setSubject("学生服务系统 - 电子邮箱验证码");
-        message.setText("欢迎注册学生服务系统，您本次的验证码为：" + checkCode + "\n 如非本人操作，请忽略。");
+        message.setText("欢迎注册学生服务系统，您本次的验证码为：" + checkCode + " \n 如非本人操作，请忽略。");
         mailSender.send(message);
         return checkCode; // 返回验证码
     }
 
-    // 发送邮件验证码
-    public String sendEmailCodeReset(String username) {
+    // 发送邮件验证码 - 根据用户名
+    public String sendEmailAuthCodeByUsername(String username) {
         // 通过用户名取得邮箱地址
         SqlSession sqlSession = MyBatisUtils.getSqlSession();
         UserMapper mapper = sqlSession.getMapper(UserMapper.class);
@@ -89,12 +87,12 @@ public class ApiService {
         message.setFrom(fromEmail);
         message.setTo(toEmail);
         message.setSubject("学生服务系统 - 电子邮箱验证码");
-        message.setText("以下验证码用于重置用户密码： " + checkCode + "\n 如非本人操作，请忽略。");
+        message.setText("以下验证码用于重置用户密码： " + checkCode + " \n 如非本人操作，请忽略。");
         mailSender.send(message);
         return checkCode; // 返回验证码
     }
 
-    // 重置密码 - 邮箱验证
+    // 重置密码 - Stage 1 - 邮箱地址校验
     public String handleValidate(String username, String email) {
         // Accessing Data
         SqlSession sqlSession = MyBatisUtils.getSqlSession();
@@ -103,22 +101,22 @@ public class ApiService {
         sqlSession.close();
         // 不存在该用户
         if(u == null) {
-            return "404";
+            return "username not exist";
         }
-        // 密码比对
+        // 邮箱地址比对
         if(email.equals(u.getEmail())) {
-            return "200";
-        } else return "201";
+            return "success";
+        } else return "email error";
     }
 
-    // 重置密码
+    // 重置密码 - Stage 2 - 根据用户名重置
     public String handlePwdReset(String username, String password) {
         SqlSession sqlSession = MyBatisUtils.getSqlSession();
         UserMapper mapper = sqlSession.getMapper(UserMapper.class);
         mapper.updateUserPwd(username, password);
-        sqlSession.commit(); // 提交事务
+        sqlSession.commit();
         sqlSession.close();
-        return "200";
+        return "success";
     }
 
 }
