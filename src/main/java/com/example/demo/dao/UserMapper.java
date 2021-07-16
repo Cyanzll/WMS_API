@@ -8,7 +8,7 @@ import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
-// 接口 - MyBatis中无需显式实现
+// 持久层接口 - MyBatis中无需显式实现
 public interface UserMapper {
     List<User> getUserList();
 

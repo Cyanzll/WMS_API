@@ -1,11 +1,11 @@
 package com.example.demo;
 
 import com.example.demo.api.ApiService;
-import com.example.demo.pojo.User;
 import com.example.demo.utils.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin // 解决前端跨域问题
@@ -87,6 +87,7 @@ public class ApiController {
             @RequestParam String to // 目的邮箱
     ) {
         String checkCode = apiService.sendEmailAuthCodeByEmail(to);
+        checkCode = DigestUtils.md5DigestAsHex(checkCode.getBytes()); // MD5处理
         return ResponseEntity.status(HttpStatus.OK).body(new Message("200", checkCode));
     }
 
@@ -96,6 +97,7 @@ public class ApiController {
             @RequestParam String username
     ) {
         String checkCode = apiService.sendEmailAuthCodeByUsername(username);
+        checkCode = DigestUtils.md5DigestAsHex(checkCode.getBytes()); // MD5处理
         return ResponseEntity.status(HttpStatus.OK).body(new Message("200", checkCode));
     }
 

@@ -1,5 +1,10 @@
 package com.example.demo.utils;
 
+// 用于创建统一格式的 ResponseBody
+// {
+//   status: "",
+//   message: ""
+// }
 public class Message {
     private String message;
     private String status;
